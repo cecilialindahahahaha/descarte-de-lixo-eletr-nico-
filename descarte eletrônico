@@ -3,99 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Descarte Eletrônico</title>
+<title>EcoDescarte - Lixo Eletrônico</title>
 
 <style>
-body{
+body {
     font-family: Arial, sans-serif;
-    background:#f4f4f4;
-    margin:0;
-    padding:20px;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 0;
 }
 
-.container{
-    max-width:700px;
-    margin:auto;
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.2);
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
 
-h1{
-    color:green;
-    text-align:center;
+h1 {
+    text-align: center;
+    color: #2e7d32;
 }
 
-input{
-    width:100%;
-    padding:10px;
-    margin:5px 0;
-    box-sizing:border-box;
+form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
-button{
-    width:100%;
-    padding:10px;
-    background:green;
-    color:white;
-    border:none;
-    cursor:pointer;
+form input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
 }
 
-button:hover{
-    background:darkgreen;
+form button {
+    padding: 10px 20px;
+    background: #2e7d32;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
 }
 
-.item{
-    background:#e8ffe8;
-    padding:10px;
-    margin-top:10px;
-    border-radius:5px;
+form button:hover {
+    background: #1b5e20;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background: #2e7d32;
+    color: white;
+}
+
+button.delete-btn {
+    background: #c62828;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button.delete-btn:hover {
+    background: #b71c1c;
 }
 </style>
-
 </head>
 <body>
 
 <div class="container">
-    <h1>Cadastro de Descarte Eletrônico</h1>
+    <h1>EcoDescarte - Lixo Eletrônico</h1>
 
-    <input type="text" id="equipamento" placeholder="Nome do equipamento">
-    <input type="text" id="local" placeholder="Local de descarte">
+    <form id="form">
+        <input type="text" id="equipamento" placeholder="Nome do equipamento" required>
+        <input type="text" id="local" placeholder="Local de descarte" required>
+        <button type="submit">Adicionar</button>
+    </form>
 
-    <button onclick="adicionar()">Cadastrar</button>
-
-    <h2>Registros</h2>
-
-    <div id="lista"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Equipamento</th>
+                <th>Local de Descarte</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="lista">
+        </tbody>
+    </table>
 </div>
 
 <script>
+const form = document.getElementById("form");
+const lista = document.getElementById("lista");
 
-function adicionar(){
+// Carrega registros do localStorage
+let registros = JSON.parse(localStorage.getItem("registros")) || [];
+atualizarLista();
 
-    let equipamento = document.getElementById("equipamento").value;
-    let local = document.getElementById("local").value;
+form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const equipamento = document.getElementById("equipamento").value.trim();
+    const local = document.getElementById("local").value.trim();
 
     if(equipamento === "" || local === ""){
         alert("Preencha todos os campos!");
         return;
     }
 
-    let div = document.createElement("div");
-    div.className = "item";
+    const registro = { id: Date.now(), equipamento, local };
+    registros.push(registro);
 
-    div.innerHTML =
-        "<strong>Equipamento:</strong> " + equipamento +
-        "<br><strong>Local:</strong> " + local;
+    localStorage.setItem("registros", JSON.stringify(registros));
+    atualizarLista();
 
-    document.getElementById("lista").appendChild(div);
+    form.reset();
+});
 
-    document.getElementById("equipamento").value = "";
-    document.getElementById("local").value = "";
+function atualizarLista(){
+    lista.innerHTML = "";
+
+    registros.forEach(r => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${r.equipamento}</td>
+            <td>${r.local}</td>
+            <td><button class="delete-btn" onclick="deletar(${r.id})">Excluir</button></td>
+        `;
+
+        lista.appendChild(tr);
+    });
 }
 
+function deletar(id){
+    registros = registros.filter(r => r.id !== id);
+    localStorage.setItem("registros", JSON.stringify(registros));
+    atualizarLista();
+}
 </script>
 
 </body>
