@@ -1,27 +1,40 @@
 eco-descarte/
 │
 ├── server.js
+├── pontos.json
 ├── package.json
 └── README.md
-// server.js
+[]
 const express = require('express');
+const fs = require('fs');
 const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = 3000;
+const DATA_FILE = 'pontos.json';
 
-// Middleware
 app.use(bodyParser.json());
 
-// "Banco de dados" em memória
-let pontosDeColeta = [
-    { id: 1, nome: "ReciclaTech Centro", endereco: "Rua A, 123" },
-    { id: 2, nome: "EcoEletron", endereco: "Av. B, 456" }
-];
+// Função para ler os pontos de coleta
+function lerPontos() {
+    try {
+        const data = fs.readFileSync(DATA_FILE, 'utf-8');
+        return JSON.parse(data);
+    } catch (err) {
+        console.error("Erro ao ler pontos.json:", err);
+        return [];
+    }
+}
+
+// Função para salvar os pontos de coleta
+function salvarPontos(pontos) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(pontos, null, 2));
+}
 
 // Rota para listar pontos de coleta
 app.get('/pontos', (req, res) => {
-    res.json(pontosDeColeta);
+    const pontos = lerPontos();
+    res.json(pontos);
 });
 
 // Rota para adicionar um ponto de coleta
@@ -32,14 +45,29 @@ app.post('/pontos', (req, res) => {
         return res.status(400).json({ error: "Nome e endereço são obrigatórios." });
     }
 
+    const pontos = lerPontos();
     const novoPonto = {
-        id: pontosDeColeta.length + 1,
+        id: pontos.length + 1,
         nome,
         endereco
     };
 
-    pontosDeColeta.push(novoPonto);
+    pontos.push(novoPonto);
+    salvarPontos(pontos);
+
     res.status(201).json(novoPonto);
+});
+
+// Rota para buscar ponto por ID
+app.get('/pontos/:id', (req, res) => {
+    const pontos = lerPontos();
+    const ponto = pontos.find(p => p.id === parseInt(req.params.id));
+
+    if (!ponto) {
+        return res.status(404).json({ error: "Ponto não encontrado." });
+    }
+
+    res.json(ponto);
 });
 
 // Iniciar servidor
@@ -49,7 +77,7 @@ app.listen(PORT, () => {
 {
   "name": "eco-descarte",
   "version": "1.0.0",
-  "description": "API simples de pontos de coleta de lixo eletrônico",
+  "description": "API de pontos de coleta de lixo eletrônico com armazenamento em JSON",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
