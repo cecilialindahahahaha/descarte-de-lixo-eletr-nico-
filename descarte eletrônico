@@ -1,45 +1,63 @@
-ecotech/
+eco-descarte/
 │
-├── frontend/
-│   ├── index.html
-│   ├── css/
-│   └── js/
-│
-├── backend/
-│   ├── server.js
-│   ├── routes/
-│   └── models/
-│
-├── database/
-│
-├── docs/
-│   ├── requisitos.md
-│   ├── casos-de-uso.md
-│   └── diagrama.png
-│
-├── README.md
-└── LICENSE
-# EcoTech
+├── server.js
+├── package.json
+└── README.md
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
 
-Plataforma para incentivar e facilitar o descarte correto de resíduos eletrônicos.
+const app = express();
+const PORT = 3000;
 
-## Funcionalidades
-- Localização de pontos de coleta
-- Agendamento de descarte
-- Educação ambiental
-- Relatórios de reciclagem
+// Middleware
+app.use(bodyParser.json());
 
-## Como Executar
+// "Banco de dados" em memória
+let pontosDeColeta = [
+    { id: 1, nome: "ReciclaTech Centro", endereco: "Rua A, 123" },
+    { id: 2, nome: "EcoEletron", endereco: "Av. B, 456" }
+];
 
-### Backend
+// Rota para listar pontos de coleta
+app.get('/pontos', (req, res) => {
+    res.json(pontosDeColeta);
+});
+
+// Rota para adicionar um ponto de coleta
+app.post('/pontos', (req, res) => {
+    const { nome, endereco } = req.body;
+
+    if (!nome || !endereco) {
+        return res.status(400).json({ error: "Nome e endereço são obrigatórios." });
+    }
+
+    const novoPonto = {
+        id: pontosDeColeta.length + 1,
+        nome,
+        endereco
+    };
+
+    pontosDeColeta.push(novoPonto);
+    res.status(201).json(novoPonto);
+});
+
+// Iniciar servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
+});
+{
+  "name": "eco-descarte",
+  "version": "1.0.0",
+  "description": "API simples de pontos de coleta de lixo eletrônico",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2"
+  }
+}
 npm install
 npm start
-
-### Frontend
-Abra o arquivo index.html no navegador.
-
-## Contribuição
-Contribuições são bem-vindas.
-
-## Licença
-MIT
