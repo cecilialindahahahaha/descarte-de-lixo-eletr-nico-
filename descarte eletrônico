@@ -3,83 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EcoDescarte - Lixo Eletrônico</title>
-
+<title>EcoDescarte</title>
 <style>
 body {
     font-family: Arial, sans-serif;
     background: #f0f2f5;
     margin: 0;
-    padding: 0;
+    padding: 20px;
 }
-
 .container {
-    max-width: 800px;
-    margin: 40px auto;
+    max-width: 600px;
+    margin: auto;
     background: #fff;
-    padding: 30px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
-
 h1 {
     text-align: center;
     color: #2e7d32;
 }
-
-form {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-form input {
-    flex: 1;
+input, button {
     padding: 10px;
+    margin: 5px 0;
     font-size: 16px;
 }
-
-form button {
-    padding: 10px 20px;
+input {
+    width: calc(50% - 12px);
+}
+button {
+    width: 100%;
     background: #2e7d32;
     color: white;
     border: none;
     cursor: pointer;
-    font-size: 16px;
     border-radius: 5px;
 }
-
-form button:hover {
+button:hover {
     background: #1b5e20;
 }
-
-table {
-    width: 100%;
-    border-collapse: collapse;
+ul {
+    list-style: none;
+    padding: 0;
 }
-
-table th, table td {
-    border: 1px solid #ddd;
+li {
+    background: #e8ffe8;
+    margin: 5px 0;
     padding: 10px;
-    text-align: left;
-}
-
-table th {
-    background: #2e7d32;
-    color: white;
-}
-
-button.delete-btn {
-    background: #c62828;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
     border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-
-button.delete-btn:hover {
+button.delete {
+    background: #c62828;
+    padding: 5px 10px;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button.delete:hover {
     background: #b71c1c;
 }
 </style>
@@ -87,76 +71,56 @@ button.delete-btn:hover {
 <body>
 
 <div class="container">
-    <h1>EcoDescarte - Lixo Eletrônico</h1>
+    <h1>EcoDescarte</h1>
 
-    <form id="form">
-        <input type="text" id="equipamento" placeholder="Nome do equipamento" required>
-        <input type="text" id="local" placeholder="Local de descarte" required>
-        <button type="submit">Adicionar</button>
-    </form>
+    <input type="text" id="equipamento" placeholder="Nome do equipamento">
+    <input type="text" id="local" placeholder="Local de descarte">
+    <button onclick="adicionar()">Adicionar</button>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Equipamento</th>
-                <th>Local de Descarte</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody id="lista">
-        </tbody>
-    </table>
+    <h2>Registros</h2>
+    <ul id="lista"></ul>
 </div>
 
 <script>
-const form = document.getElementById("form");
-const lista = document.getElementById("lista");
-
-// Carrega registros do localStorage
 let registros = JSON.parse(localStorage.getItem("registros")) || [];
-atualizarLista();
 
-form.addEventListener("submit", function(e){
-    e.preventDefault();
-
-    const equipamento = document.getElementById("equipamento").value.trim();
-    const local = document.getElementById("local").value.trim();
-
-    if(equipamento === "" || local === ""){
-        alert("Preencha todos os campos!");
-        return;
-    }
-
-    const registro = { id: Date.now(), equipamento, local };
-    registros.push(registro);
-
+function salvar() {
     localStorage.setItem("registros", JSON.stringify(registros));
-    atualizarLista();
+}
 
-    form.reset();
-});
-
-function atualizarLista(){
+function atualizarLista() {
+    const lista = document.getElementById("lista");
     lista.innerHTML = "";
-
-    registros.forEach(r => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td>${r.equipamento}</td>
-            <td>${r.local}</td>
-            <td><button class="delete-btn" onclick="deletar(${r.id})">Excluir</button></td>
-        `;
-
-        lista.appendChild(tr);
+    registros.forEach((r, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span><strong>${r.equipamento}</strong> - ${r.local}</span>
+                        <button class="delete" onclick="deletar(${index})">Excluir</button>`;
+        lista.appendChild(li);
     });
 }
 
-function deletar(id){
-    registros = registros.filter(r => r.id !== id);
-    localStorage.setItem("registros", JSON.stringify(registros));
+function adicionar() {
+    const equipamento = document.getElementById("equipamento").value.trim();
+    const local = document.getElementById("local").value.trim();
+    if (!equipamento || !local) {
+        alert("Preencha todos os campos!");
+        return;
+    }
+    registros.push({ equipamento, local });
+    salvar();
+    atualizarLista();
+    document.getElementById("equipamento").value = "";
+    document.getElementById("local").value = "";
+}
+
+function deletar(index) {
+    registros.splice(index, 1);
+    salvar();
     atualizarLista();
 }
+
+// Carrega a lista ao abrir
+atualizarLista();
 </script>
 
 </body>
