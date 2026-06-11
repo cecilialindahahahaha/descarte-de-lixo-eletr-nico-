@@ -1,91 +1,102 @@
-eco-descarte/
-│
-├── server.js
-├── pontos.json
-├── package.json
-└── README.md
-[]
-const express = require('express');
-const fs = require('fs');
-const bodyParser = require('body-parser');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descarte Eletrônico</title>
 
-const app = express();
-const PORT = 3000;
-const DATA_FILE = 'pontos.json';
-
-app.use(bodyParser.json());
-
-// Função para ler os pontos de coleta
-function lerPontos() {
-    try {
-        const data = fs.readFileSync(DATA_FILE, 'utf-8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error("Erro ao ler pontos.json:", err);
-        return [];
-    }
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    margin:0;
+    padding:20px;
 }
 
-// Função para salvar os pontos de coleta
-function salvarPontos(pontos) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(pontos, null, 2));
+.container{
+    max-width:700px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
-// Rota para listar pontos de coleta
-app.get('/pontos', (req, res) => {
-    const pontos = lerPontos();
-    res.json(pontos);
-});
-
-// Rota para adicionar um ponto de coleta
-app.post('/pontos', (req, res) => {
-    const { nome, endereco } = req.body;
-
-    if (!nome || !endereco) {
-        return res.status(400).json({ error: "Nome e endereço são obrigatórios." });
-    }
-
-    const pontos = lerPontos();
-    const novoPonto = {
-        id: pontos.length + 1,
-        nome,
-        endereco
-    };
-
-    pontos.push(novoPonto);
-    salvarPontos(pontos);
-
-    res.status(201).json(novoPonto);
-});
-
-// Rota para buscar ponto por ID
-app.get('/pontos/:id', (req, res) => {
-    const pontos = lerPontos();
-    const ponto = pontos.find(p => p.id === parseInt(req.params.id));
-
-    if (!ponto) {
-        return res.status(404).json({ error: "Ponto não encontrado." });
-    }
-
-    res.json(ponto);
-});
-
-// Iniciar servidor
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
-{
-  "name": "eco-descarte",
-  "version": "1.0.0",
-  "description": "API de pontos de coleta de lixo eletrônico com armazenamento em JSON",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2"
-  }
+h1{
+    color:green;
+    text-align:center;
 }
-npm install
-npm start
+
+input{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    background:green;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:hover{
+    background:darkgreen;
+}
+
+.item{
+    background:#e8ffe8;
+    padding:10px;
+    margin-top:10px;
+    border-radius:5px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>Cadastro de Descarte Eletrônico</h1>
+
+    <input type="text" id="equipamento" placeholder="Nome do equipamento">
+    <input type="text" id="local" placeholder="Local de descarte">
+
+    <button onclick="adicionar()">Cadastrar</button>
+
+    <h2>Registros</h2>
+
+    <div id="lista"></div>
+</div>
+
+<script>
+
+function adicionar(){
+
+    let equipamento = document.getElementById("equipamento").value;
+    let local = document.getElementById("local").value;
+
+    if(equipamento === "" || local === ""){
+        alert("Preencha todos os campos!");
+        return;
+    }
+
+    let div = document.createElement("div");
+    div.className = "item";
+
+    div.innerHTML =
+        "<strong>Equipamento:</strong> " + equipamento +
+        "<br><strong>Local:</strong> " + local;
+
+    document.getElementById("lista").appendChild(div);
+
+    document.getElementById("equipamento").value = "";
+    document.getElementById("local").value = "";
+}
+
+</script>
+
+</body>
+</html>
