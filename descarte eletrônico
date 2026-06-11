@@ -1,0 +1,45 @@
+ecotech/
+│
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   └── js/
+│
+├── backend/
+│   ├── server.js
+│   ├── routes/
+│   └── models/
+│
+├── database/
+│
+├── docs/
+│   ├── requisitos.md
+│   ├── casos-de-uso.md
+│   └── diagrama.png
+│
+├── README.md
+└── LICENSE
+# EcoTech
+
+Plataforma para incentivar e facilitar o descarte correto de resíduos eletrônicos.
+
+## Funcionalidades
+- Localização de pontos de coleta
+- Agendamento de descarte
+- Educação ambiental
+- Relatórios de reciclagem
+
+## Como Executar
+
+### Backend
+npm install
+npm start
+
+### Frontend
+Abra o arquivo index.html no navegador.
+
+## Contribuição
+Contribuições são bem-vindas.
+
+## Licença
+MIT
